@@ -1,9 +1,9 @@
 import subprocess
 
 def get_wifi_passwords():
-    # Выполняем команду для получения списка профилей Wi-Fi
+    # Execute command to get list of Wi-Fi profiles
     try:
-        profiles_data = subprocess.check_output(['netsh', 'wlan', 'show', 'profiles']).decode('utf-8', errors="backslashreplace")
+        profiles_data = subprocess.check_output(['netsh', 'wlan', 'how', 'profiles']).decode('utf-8', errors="backslashreplace")
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {e}")
         return {}
@@ -16,9 +16,9 @@ def get_wifi_passwords():
     wifi_passwords = {}
 
     for profile in profiles:
-        # Выполняем команду для получения информации о профиле Wi-Fi
+        # Execute command to get information about Wi-Fi profile
         try:
-            profile_info = subprocess.check_output(['netsh', 'wlan', 'show', 'profile', profile, 'key=clear']).decode('utf-8', errors="backslashreplace")
+            profile_info = subprocess.check_output(['netsh', 'wlan', 'how', 'profile', profile, 'key=clear']).decode('utf-8', errors="backslashreplace")
         except subprocess.CalledProcessError as e:
             print(f"Error executing command for profile {profile}: {e}")
             continue
@@ -26,7 +26,7 @@ def get_wifi_passwords():
         print(f"Profile info for {profile}:")
         print(profile_info)
 
-        # Ищем строку с паролем
+        # Find line with password
         password_line = [line for line in profile_info.split('\n') if "Key Content" in line]
 
         if password_line:
@@ -40,4 +40,4 @@ def get_wifi_passwords():
 if __name__ == "__main__":
     passwords = get_wifi_passwords()
     for profile, password in passwords.items():
-        print(f"SSID: {profile}, Password: {password}")
+        print(f"SSID: {profile}, Password: {'*' * len(password) if password else 'No password'}")
